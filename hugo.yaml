@@ -1,7 +1,6 @@
 baseURL: 'https://clement.n8r.ch/'
-languageCode: fr-FR
 
-defaultContentLanguage: fr
+defaultContentLanguage: en
 languages:
   fr:
     disabled: false
