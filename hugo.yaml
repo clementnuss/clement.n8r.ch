@@ -160,8 +160,3 @@ markup:
 module:
   imports:
   - path: github.com/adityatelange/hugo-PaperMod
-
-deployment:
-  targets:
-    - name: production
-      URL: "s3://clement-n8r-ch?endpoint=fb6a4cc65b21852cc00f4c6e2e4be124.r2.cloudflarestorage.com:443&s3ForcePathStyle=true&region=auto"
