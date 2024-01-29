@@ -5,6 +5,8 @@ slug: dns-servers-monitoring
 cover:
   image: /images/2023-hostlookuper/hostlookuper-dashboard.png
 tags: [dns, go, monitoring]
+aliases:
+- /dns-servers-monitoring
 
 ---
 
