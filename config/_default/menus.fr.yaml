@@ -1,0 +1,14 @@
+
+main:
+  - identifier: articles
+    name: articles
+    url: /articles/
+    weight: 10
+  - identifier: tags
+    name: tags
+    url: /tags/
+    weight: 20
+  - identifier: recherche
+    url: /recherche/
+    name: recherche
+    weight: 30

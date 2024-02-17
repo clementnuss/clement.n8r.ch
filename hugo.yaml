@@ -1,16 +1,17 @@
-baseURL: '/'
+baseURL: "/"
 
 defaultContentLanguage: en
+defaultContentLanguageInSubdir: true
+
+enableEmoji: true
+enableRobotsTXT: true
+
 languages:
   fr:
-    disabled: false
-    languageCode: fr-FR
-    languageDirection: ltr
-    languageName: Français
+    languageCode: "fr-FR"
+    languageName: ":fr: Fr"
     params:
       subtitle: Référence, tutoriels et explications
-      description: "Mon site personnel"
-      # profile-mode
       profileMode:
         enabled: true # needs to be explicitly set
         title: n8r | Clément
@@ -27,15 +28,10 @@ languages:
     title: n8r | Clément
     weight: 1
   en:
-    disabled: false
-    languageCode: en-US
-    languageDirection: ltr
-    languageName: English
+    languageCode: "en-US"
+    languageName: ":us: En"
     params:
       subtitle: Reference, Tutorials, and Explanations
-      description: "My personal homepage"
-
-      # profile-mode
       profileMode:
         enabled: true # needs to be explicitly set
         title: n8r | Clément
@@ -55,9 +51,10 @@ params:
   # env: production # to enable google analytics, opengraph, twitter-cards and schema.
   keywords: [Blog, Portfolio]
   author: Clément Nussbaumer
-  images: ["/content/s"]
   DateFormat: "2 January 2006"
-  defaultTheme: auto
+  defaultTheme: light
+  disableThemeToggle: true
+  displayFullLangName: true
 
   ShowReadingTime: true
   # ShowShareButtons: true
@@ -74,7 +71,6 @@ params:
   hideSummary: false
   showtoc: true
   tocopen: true
-  math: true
 
   assets:
     disableHLJS: true # to disable highlight.js
@@ -90,7 +86,6 @@ params:
     # icon: /apple-touch-icon.png
     # iconHeight: 35
 
-
   socialIcons:
     - name: email
       url: mailto:clement@n8r.ch
@@ -103,23 +98,14 @@ params:
     - name: linkedin
       url: https://www.linkedin.com/in/clement-j-m-nussbaumer/
 
-  # analytics:
-  #   google:
-  #     SiteVerificationTag: "XYZabc"
-  #   bing:
-  #     SiteVerificationTag: "XYZabc"
-  #   yandex:
-  #     SiteVerificationTag: "XYZabc"
-
   cover:
     hidden: false # hide everywhere but not in structured data
     hiddenInList: false # hide on list pages and home
     hiddenInSingle: true # hide on single page
 
   editPost:
-    URL: "https://github.com/clementnuss/clement.n8r.ch/content"
-    Text: "Suggest Changes" # edit text
-    appendFilePath: true # to append file path to Edit link
+    URL: "https://github.com/clementnuss/clement.n8r.ch/edit/main/content"
+    appendFilePath: true
 
   # for search
   # https://fusejs.io/api/options.html
@@ -131,20 +117,7 @@ params:
     threshold: 0.4
     minMatchCharLength: 0
     keys: ["title", "permalink", "summary", "content"]
-menu:
-  main:
-    - identifier: articles
-      name: articles
-      url: /articles/
-      weight: 10
-    - identifier: tags
-      name: tags
-      url: /tags/
-      weight: 20
-    # - identifier: example
-    #   name: example.org
-    #   url: https://example.org
-    #   weight: 30
+
 # Read: https://github.com/adityatelange/hugo-PaperMod/wiki/FAQs#using-hugos-syntax-highlighter-chroma
 pygmentsUseClasses: true
 markup:
@@ -156,6 +129,12 @@ markup:
     # lineNos: true
     # style: monokai
 
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON # necessary for search
+
 module:
   imports:
-  - path: github.com/adityatelange/hugo-PaperMod
+    - path: github.com/adityatelange/hugo-PaperMod
