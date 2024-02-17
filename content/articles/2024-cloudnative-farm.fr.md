@@ -2,19 +2,24 @@
 title: "Une Ferme Connectée: partie 1 - La Traite 🐄 🥛"
 date: 2024-02-07T17:12:16+00:00
 slug: ferme-connectee-la-traite
+cover:
+   image: /images/2024-milk-exporter/grafana-dashboard-excerpt.png
 tags: [kubernetes, metrics, grafana, mdb, Access, lait, ferme]
 ---
 
 À côté de mon travail d'Ingénieur Système (focus Kubernetes) chez PostFinance,
 je suis marié à une agricultrice en Suisse, et vis avec elle et sa famille sur
-l'exploitation familiale. \ Cela me change de mon travail quotidien, et j'ai
+l'exploitation familiale. \
+Cela me change de mon travail quotidien, et j'ai
 parfois l'occasion d'aider en donnant par exemple à boire aux veaux lors de la
 traite, en utilisant mes compétences pour par exemple installer des caméras de
 surveillance, pour déployer un réseau WiFi longue distance à travers
 l'exploitation, ou encore pour moderniser la surveillance de la traite
-quotidienne. \ C'est ce dernier point que je détaille aujourd'hui (sans les
-détails techniques, qui seront eux abordés dans la version anglaise de cette
-article).
+quotidienne. \
+C'est ce dernier point que je détaille aujourd'hui (sans les détails
+techniques, qui seront eux abordés dans la version anglaise de cette article,
+et dans le [README](https://github.com/clementnuss/alpro-openmetrics-exporter)
+du projet OpenSource que j'ai créé pour ce projet).
 
 ## La Ferme et la traite
 
@@ -62,5 +67,18 @@ OpenMetrics/Prometheus est le suivant:
 
 ### Visualisation des données
 
-Comme les données sont disponibles dans VictoriaMetrics, je peux utiliser
-Grafana pour visualiser les données de la traite! 🐄 🥛
+Comme les données de la traite sont disponibles dans VictoriaMetrics, je peux
+utiliser [Grafana](https://grafana.com/) pour les visualiser. Je pourrai
+potentiellement par la suite créer des alertes, par exemple lorsqu'il faut
+beaucoup plus de temps pour traire une vache que la veille, ou si la production
+moyenne de lait sur 3 jours baisse sensiblement.
+
+Comme Grafana est une solution de visualisation de graphiques web, il est
+maintenant possible en tout temps de consulter la production de chaque vache,
+la tendance de production, la durée moyenne de la traite, etc. Et ce même
+depuis son natel (/téléphone portable/smartphone)!
+
+Je clôture donc cet article avec un aperçu de la visualisation. Le prochain
+épisode concernera l'installation de méthanisation/biogaz de l'exploitation !
+
+![Grafana dashboard](/images/2024-milk-exporter/grafana-dashboard.png)
