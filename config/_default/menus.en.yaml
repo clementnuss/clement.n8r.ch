@@ -2,13 +2,13 @@
 main:
   - identifier: articles
     name: articles
-    url: /articles/
+    url: /articles
     weight: 10
   - identifier: tags
     name: tags
-    url: /tags/
+    url: /tags
     weight: 20
   - identifier: search
-    url: /search/
+    url: /search
     name: search
     weight: 30
