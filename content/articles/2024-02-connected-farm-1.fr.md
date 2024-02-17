@@ -42,7 +42,7 @@ dans une base de données chronologique (en anglais: time-series database), afin
 de pouvoir ensuite visualiser ces données avec un logiciel moderne et que
 j'apprécie au quotidien: Grafana.
 
-### Importer les données Access
+## Importer les données Access
 
 Pour ce faire, je me suis intéressé à la base de données employée par le
 logiciel Alpro, qui est une base de donnée Access assez vieille, mais que l'on
@@ -83,7 +83,7 @@ Name: 0, Length: 20290, dtype: objec
 1. j'envoie tous ces enregistrements dans ma base de donnée chronologique de
    prédilection: [VictoriaMetrics](https://victoriametrics.com/)
 
-### Visualisation des données
+## Visualisation des données
 
 Comme les données de la traite sont disponibles dans VictoriaMetrics, je peux
 utiliser [Grafana](https://grafana.com/) pour les visualiser. Je pourrai

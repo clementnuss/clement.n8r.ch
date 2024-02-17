@@ -37,7 +37,7 @@ became interested in trying to import milking data into a time-series database,
 so that I could later visualize this data with modern software that I use and
 appreciate daily: Grafana.
 
-### Importing Access Data
+## Importing Access Data
 
 To do this, I looked into the database used by the Alpro software, which is a
 fairly old Access database but can still be opened with software such as
@@ -77,7 +77,7 @@ Name: 0, Length: 20290, dtype: objec
 1. I upload those records to my preferred time-series database:
    [VictoriaMetrics](https://victoriametrics.com/)
 
-### Data Visualization
+## Data Visualization
 
 Since the milking data is available in VictoriaMetrics, I can use
 [Grafana](https://grafana.com/) to visualize it. I could potentially create
