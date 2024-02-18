@@ -38,9 +38,9 @@ dernière mise-bas, etc.
 Bien que ces données soit intéressantes, comme le seul moyen d'y accéder est de
 se connecter à l'ordinateur et de d'utiliser le vieux logiciel à l'interface
 démodée, je me suis intéressé à essayer d'importer les données de la traite
-dans une base de données chronologique (en anglais: time-series database), afin
-de pouvoir ensuite visualiser ces données avec un logiciel moderne et que
-j'apprécie au quotidien: Grafana.
+dans une base de données de séries chronologiques (en anglais: time-series
+database), afin de pouvoir ensuite visualiser ces données avec un logiciel
+moderne et que j'apprécie au quotidien: Grafana.
 
 ## Importer les données Access
 

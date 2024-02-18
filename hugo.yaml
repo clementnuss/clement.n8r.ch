@@ -103,9 +103,9 @@ params:
     hiddenInList: false # hide on list pages and home
     hiddenInSingle: true # hide on single page
 
-  editPost:
-    URL: "https://github.com/clementnuss/clement.n8r.ch/edit/main/content"
-    appendFilePath: true
+  # editPost:
+  #   URL: "https://github.com/clementnuss/clement.n8r.ch/edit/main/content"
+  #   appendFilePath: true
 
   # for search
   # https://fusejs.io/api/options.html
