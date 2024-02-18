@@ -9,6 +9,6 @@ main:
     url: /tags
     weight: 20
   - identifier: search
-    url: /search
     name: search
+    url: /search
     weight: 30
