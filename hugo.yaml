@@ -1,6 +1,6 @@
 # baseURL: "/"
 
-defaultContentLanguage: en
+defaultContentLanguage: fr
 defaultContentLanguageInSubdir: true
 
 enableEmoji: true
