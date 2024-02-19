@@ -55,6 +55,7 @@ params:
   defaultTheme: light
   disableThemeToggle: true
   displayFullLangName: true
+  math: true
 
   ShowReadingTime: true
   # ShowShareButtons: true
