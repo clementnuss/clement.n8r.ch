@@ -63,7 +63,7 @@ compliquée, mais elle doit être réalisée précisément et sans oublier d'ét
 
 1. la première étape consiste à reculer votre véhicule tracteur jusqu'à la
    remorque (sans toucher le timon ⚠️), puis à crocher la remorque
-1. il faut ensutie effectuer un test de traction/levage: on va lever le timon à
+1. il faut ensuite effectuer un test de traction/levage: on va lever le timon à
    l'aide de la "roue jockey", et si la remorque est correctement crochée, le
    véhicule tracteur va se lever aussi
 1. on poursuit en branchant les "conduites", c'est à dire le filin en acier qui
