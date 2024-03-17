@@ -22,7 +22,7 @@ I did not, however, find a step-by-step guide explaining how a CNI is practicall
 **A CNI is a Network Plugin**, installed and configured by the cluster
 administrator. It **receives instructions from Kubernetes** to **set up the network interface(s) and IP address** for the pods.
 
-It is quite important already to highlight that a CNI plugin is an executable, [as specified in the CNI specification](http://Each%20CNI%20plugin%20must%20be%20implemented%20as%20an%20executable%20that%20is%20invoked%20by%20the%20container%20management%20system%20%28e.g.%20rkt%20or%20Kubernetes%29.).
+It is quite important already to highlight that a CNI plugin is an executable, [as specified in the CNI specification](https://github.com/containernetworking/cni/blob/main/SPEC.md#overview-1).
 
 How does the CNI plugin know which interface type to configure, which IP address to set, etc? It receives instructions from Kubernetes and more specifically from the `kubelet` daemon running on the worker and master nodes, and these instructions are sent with/through:
 
