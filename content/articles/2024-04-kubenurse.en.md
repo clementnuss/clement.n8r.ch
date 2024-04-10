@@ -59,19 +59,21 @@ Go [`http/httptrace`](https://pkg.go.dev/net/http/httptrace) package.
 All this data is then available at the `/metrics` endpoint, and the following
 metrics are exposed.
 
-* `kubenurse_errors_total`: error counter partitioned by error type and request type
-* `kubenurse_request_duration`: a histogram for kubenurse request duration partitioned by error type
-* `kubenurse_httpclient_request_duration_seconds`:  a latency histogram of request latencies from the kubenurse http client.
+* `kubenurse_errors_total`: error counter
+* `kubenurse_httpclient_request_duration_seconds`:  a latency histogram for request duration
 * `kubenurse_httpclient_trace_requests_total`: a latency histogram for the http
-  client _trace_ metric instrumentation, with detailed statistics for e.g.
-  `dns_start`, `got_conn` events, and more. the details can be seen in the
+  client _trace_ metric instrumentation, partitioned httptrace connection
+  events, where events are e.g. `dns_start`, `got_conn`, `tls_handshake_done`,
+  and more. the details can be seen in the
   [`httptrace.go`](https://github.com/postfinance/kubenurse/blob/52767fbb280b65c06ac926dac49dd874e9ec4aee/internal/servicecheck/httptrace.go#L73)
   file
 
-All of these metrics are partitioned with a `request_type` label, which permits
-to compare the Kubernetes service latency with the ingress latency for example.
+All of these metrics are also partitioned with a `request_type` label, which
+makes it possible to precisely know which request type increased an error
+counter, or to compare the latencies of multiple request types, for example
+compare how your service and ingress latencies differ.
 
-As the saying goes, *a picture is worth a thousand words*, so here we go, with a nice [excalidraw.com](https://excalidraw.com/) drawing to illustrate the different request types:
+As the saying goes, _a picture is worth a thousand words*, so here we go, with a nice [excalidraw.com](https://excalidraw.com/) drawing to illustrate the different request types:
 
 ![kubenurse_request_types](/images/2024-kubenurse/kubenurse.png)
 
