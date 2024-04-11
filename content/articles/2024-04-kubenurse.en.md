@@ -61,28 +61,23 @@ metrics are exposed.
 
 At `/metrics` you will find the following metrics:
 
-* `kubenurse_httpclient_request_duration_seconds` \
-  latency histogram for request duration, partitioned by request type
-* `kubenurse_httpclient_trace_request_duration_seconds` \
-  latency histogram for httpclient _trace_ metric instrumentation, partitioned
-  by request type and httptrace connection events, where events are e.g.
-  `dns_start`, `got_conn`, `tls_handshake_done`, and more. the details can be
-  seen in the
-  [`httptrace.go`](https://github.com/postfinance/kubenurse/blob/v1.13.0/internal/servicecheck/httptrace.go#L91)
-  file
-* `kubenurse_httpclient_requests_total` \
-  counter for the total number of http requests, partitioned by HTTP code,
-  method, and request type
-* `kubenurse_errors_total` \
-  error counter, partitioned by httptrace event and request type
-* `kubenurse_neighbourhood_incoming_checks` \
-  gauge which reports how many unique neighbours have queried the current pod
-  in the last minute
+| metric name                                           | labels               | description                                                                                                                  |
+| ----------------------------------------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `kubenurse_httpclient_request_duration_seconds`       | `type`               | latency histogram for request duration, partitioned by request type                                                          |
+| `kubenurse_httpclient_trace_request_duration_seconds` | `type, event`        | latency histogram for httpclient _trace_ metric instrumentation, partitioned by request type and httptrace connection events |
+| `kubenurse_httpclient_requests_total`                 | `type, code, method` | counter for the total number of http requests, partitioned by HTTP code, method, and request type                            |
+| `kubenurse_errors_total`                              | `type, event`        | error counter, partitioned by httptrace event and request type                                                               |
+| `kubenurse_neighbourhood_incoming_checks`             | n\a                  | gauge which reports how many unique neighbours have queried the current pod in the last minute                               |
 
 For metrics partitioned with a `type` label, it is possible to precisely know
 which request type increased an error counter, or to compare the latencies of
 multiple request types, for example compare how your service and ingress
 latencies differ.
+
+Some `event` labels include `dns_start`, `got_conn`, `tls_handshake_done`, and
+more. the details can be  seen in the
+[`httptrace.go`](https://github.com/postfinance/kubenurse/blob/v1.13.0/internal/servicecheck/httptrace.go#L91)
+file.
 
 As the saying goes, _a picture is worth a thousand words*, so here we go, with a nice [excalidraw.com](https://excalidraw.com/) drawing to illustrate the different request types:
 
