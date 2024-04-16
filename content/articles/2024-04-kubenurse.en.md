@@ -9,7 +9,6 @@ tags: [kubernetes, kubenurse, network monitoring, k8s, latency, histogram, CNI]
 ---
 
 **TLDR**: Kubenurse is the Swiss army knife for Kubernetes network monitoring.
-
 It will help you
 
 * pinpoint bottlenecks and know the latency in your network
@@ -89,7 +88,44 @@ file.
 
 ---
 
+## Getting started
+
+Installing Kubenurse is a child's play with the provided Helm chart:
+
+```shell
+helm upgrade kubenurse --install \
+  --repo=https://postfinance.github.io/kubenurse/ kubenurse \
+  --set=ingress.url="kubenurse.yourdomain.tld"
+```
+
+Running that command should get you started, but you most likely need to
+double-check your logs to make sure that you don't have any errors.
+
+For the detailed configuration option, check the [Helm
+parameters](https://github.com/postfinance/kubenurse/?tab=readme-ov-file#deployment)
+collapsible section of the README, or the environment variable part if you
+prefer to deploy with raw manifests.
+
+---
+
+## Grafana
+
+Once everything is running and metrics are properly collected, you can import
+the [example Grafana
+dashboard](https://github.com/postfinance/kubenurse/blob/175c17cec93f373166a4df042d34085659df67c2/doc/grafana-kubenurse.json)
+to start visualizing the metrics:
+
+![kubenurse grafana overview](/images/2024-kubenurse/grafana.png)
+
+---
+
 ## Neighbourhood check
+
+{{< notice note >}}
+This chapter is rather technical, you can skip to the [conclusion]({{< ref "2024-04-kubenurse.md#conclusion" >}}) if you are not
+interested in knowing how hashing is used to randomly distribute the
+neighbourhood checks.
+{{< /notice >}}
 
 As documented above, kubenurse conducts a series of `path_<neighbour-node-xx>`
 checks against schedulable (i.e. non-cordoned) nodes, which permit to quickly
@@ -144,36 +180,6 @@ Per default, the neighbourhood filtering is set to 10 nodes, which means that
 on cluster with more than 10 nodes, each kubenurse will query exactly 10 nodes,
 as described above.
 
----
-
-## Getting started
-
-Installing Kubenurse is a child's play with the provided Helm chart:
-
-```shell
-helm upgrade kubenurse --install \
-  --repo=https://postfinance.github.io/kubenurse/ kubenurse \
-  --set=ingress.url="kubenurse.yourdomain.tld"
-```
-
-Running that command should get you started, but you most likely need to
-double-check your logs to make sure that you don't have any errors.
-
-For the detailed configuration option, check the [Helm
-parameters](https://github.com/postfinance/kubenurse/?tab=readme-ov-file#deployment)
-collapsible section of the README, or the environment variable part if you
-prefer to deploy with raw manifests.
-
----
-
-## Grafana
-
-Once everything is running and metrics are properly collected, you can import
-the [example Grafana
-dashboard](https://github.com/postfinance/kubenurse/blob/175c17cec93f373166a4df042d34085659df67c2/doc/grafana-kubenurse.json)
-to start visualizing the metrics:
-
-![kubenurse grafana overview](/images/2024-kubenurse/grafana.png)
 
 ---
 
