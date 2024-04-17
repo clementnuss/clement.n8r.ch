@@ -5,6 +5,8 @@ slug: kubenurse-k8s-network-monitoring
 cover:
   image: /images/2024-kubenurse/kubenurse.png
 tags: [kubernetes, kubenurse, network monitoring, k8s, latency, histogram, CNI]
+aliases:
+- /kubenurse
 
 ---
 
