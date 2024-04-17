@@ -10,7 +10,7 @@ aliases:
 
 ---
 
-**TLDR**: Kubenurse is the Swiss army knife for Kubernetes network monitoring.
+**TLDR**: [Kubenurse](https://github.com/postfinance/kubenurse) is the Swiss army knife for Kubernetes network monitoring.
 It will help you
 
 * pinpoint bottlenecks and know the latency in your network
@@ -22,7 +22,7 @@ It will help you
 
 ## Description
 
-Kubenurse is a Kubernetes network monitoring tool developed and open-sourced by
+[Kubenurse](https://github.com/postfinance/kubenurse) is a Kubernetes network monitoring tool developed and open-sourced by
 PostFinance (a Swiss Banking Institution), which acts like an in-cluster
 doctor, continuously checking the health of your pod-to-pod, pod-to-service,
 and pod-to-ingress connections.
