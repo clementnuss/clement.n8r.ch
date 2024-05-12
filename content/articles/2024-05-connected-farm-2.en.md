@@ -88,7 +88,7 @@ Thanks to gokrazy however, I imported a lightweight Go-written MQTT server
 (namely, [wind-c/comqtt](https://github.com/wind-c/comqtt/)) to my instance
 configuration, as simply as doing
 ```shell
-gok --instance gok-biogas github.com/wind-c/comqtt/cmd/single
+gok --instance gok-biogas add github.com/wind-c/comqtt/cmd/single
 gok --instance gok-biogas update
 ```
 
