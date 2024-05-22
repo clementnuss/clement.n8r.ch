@@ -48,7 +48,7 @@ languages:
     weight: 2
 
 params:
-  # env: production # to enable google analytics, opengraph, twitter-cards and schema.
+  env: production # to enable google analytics, opengraph, twitter-cards and schema.
   keywords: [Blog, Portfolio]
   author: Clément Nussbaumer
   DateFormat: "2 January 2006"
