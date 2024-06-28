@@ -4,6 +4,10 @@ main:
     name: articles
     url: /articles
     weight: 10
+  - identifier: talks
+    name: talks
+    url: /talks
+    weight: 10
   - identifier: tags
     name: tags
     url: /tags
