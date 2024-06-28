@@ -1,0 +1,29 @@
+{{ define "main" }}
+	    {{ range .Paginator.Pages.GroupBy "Type" }}
+	<ul id="post-list">
+	    <h3>{{ .Key }}</h3>
+	    {{ range .Pages }}
+		<article class="post-entry" >
+		<figure class="entry-cover">
+			<img loading="lazy" src="{{ .Params.image }}" alt="">
+		</figure>
+		</figure>
+		<header>
+			<h2 class="entry-hint-parent" >
+				{{ .LinkTitle }}
+			</h2>
+		</header>
+		<div class="entry-content">
+			{{ .Description | markdownify }}
+		</div>
+		<footer class="entry-footer">
+			{{ .Date.Format "Jan 2 2006" }}
+		</footer>
+			<a href='{{ .Params.external_url }}'></a>
+		</article>
+	    {{ end }}
+	</ul>
+	<br/>
+	<br/>
+	    {{ end }}
+{{ end }}
