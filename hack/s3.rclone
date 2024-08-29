@@ -1,0 +1,7 @@
+[ch-gva-2.exo]
+type = s3
+provider = Other
+env_auth = true
+region = ch-gva-2
+acl = public-read
+endpoint = https://sos-ch-gva-2.exo.io
