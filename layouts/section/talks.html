@@ -1,7 +1,9 @@
 {{ define "main" }}
 	    {{ range .Paginator.Pages.GroupBy "Type" }}
 	<ul id="post-list">
-	    <h3>{{ .Key }}</h3>
+		<header class="page-header">
+	    <h1>{{ .Key }}</h1>
+		</header>
 	    {{ range .Pages }}
 		<article class="post-entry" >
 		<figure class="entry-cover">
@@ -15,6 +17,13 @@
 		</header>
 		<div class="entry-content">
 			{{ .Description | markdownify }}
+		{{ if .Params.slides_url }}
+		</br>
+			<a style="box-shadow: 0 1px;" href="{{ .Params.slides_url }}">Slides</a>
+		{{ end }}
+		{{ if .Params.recording_url }}
+		and	<a style="box-shadow: 0 1px;" href="{{ .Params.recording_url }}">Recording</a>
+		{{ end }}
 		</div>
 		<footer class="entry-footer">
 			{{ .Date.Format "Jan 2 2006" }}

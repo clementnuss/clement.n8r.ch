@@ -4,5 +4,6 @@ description = ""
 tags = ["Talk"]
 draft = false
 author = "joe"
-external_url = ""
+slides_url = ""
+recording_url = ""
 +++
