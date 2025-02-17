@@ -165,5 +165,5 @@ which paved the way for several performance improvements.
 
 In the end we not only prevented 1 out of 170000 requests from failing, we also
 shared that knowledge with people impacted on Github, modified the default
-config for the tomcat base image we use internally, which will save countless
-debugging hours in the future :)
+config for the tomcat base image we use internally, which altogether will save
+countless debugging hours in the future :)
