@@ -3,7 +3,7 @@ title: "HTTP 502 - Upstream errors with nginx"
 date: 2025-02-17T11:30:51+01:00
 slug: 502-upstream-errors
 cover:
-   image: /images/2025/02-502-errors/502-errors.png
+  image: /images/2025/02-502-errors/502-errors.png
 tags: [kubernetes, sre, nginx, upstream, "502", timeout]
 ---
 
