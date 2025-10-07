@@ -8,6 +8,6 @@ draft = false
 date = "2025-09-10T16:00:00+02:00"
 author = "Clément Nussbaumer"
 image = "/images/talks/2025-09-containerdays-hamburg.jpg"
-# recording_url = ""
+recording_url = "https://www.youtube.com/watch?v=AhR_JsXCu_k"
 slides_url = "https://media.n8r.ch/pdfs/2025/2025-09-day2000-migration.pdf"
 +++
