@@ -54,7 +54,19 @@ If you want to learn more about that, then [this article is a good read](https:/
 
 In our case, we simply need to understand that a pod is associated with a network namespace (`netns`), and that the CNI, knowing this network namespace, can for example attach a network interface and configure IP addresses for our pod. It will do so with commands that will look like this:
 
-{{< gist clementnuss 8f1903eb7e4086fc37adae74a1c3bb3b example_cni_attach.sh >}}
+```bash
+# given $netns the the network namespace id. e.g. netns=46165437
+
+# 1st: we create a virtual interface
+ip link add name toto_if type ipip local 10.20.30.46 remote 10.30.30.1
+
+# 2nd, we put this interface in the network namespace of our pod
+ip link set dev toto_if netns $netns
+
+# 3rd, we can for example change the ip address or routing parameters:
+nsenter -t $netns --network ip addr add 1.2.3.4/30 dev toto_if
+nsenter -t $netns --network ip route add default via 1.2.3.5
+```
 
 ℹ️ If you find this interesting, please note that working with the network namespace of your pod can greatly help you debug your networking problems: you will be able to execute any executable running on your host but restricted to the network namespace of your pod. Concretely, you could do:
 
@@ -86,7 +98,68 @@ Concretely, to intercept calls to e.g. the `calico` CNI, you need to:
 
 3. Go in the `/tmp/cni_logging` directory and watch as files are being created for all CRI/CNI exchanges 🔍
 
-{{< gist clementnuss 104dfa85b1f18cedc61e7983dadb1691>}}
+```bash
+#!/bin/bash
+# Auther Clément Nussbaumer <clement@astutus.org>, Aug 2020
+#
+# CNI interception script: permits to do live debugging of CNI calls.
+# Usage: rename the real cni binary file with by prepending the orginal binary name with real_
+# E.g. for multus, real_multus. Now put this script in place the binary:
+# Concretely, name it `multus` if you want to intercept multus calls.
+
+cni=$(echo $0 | awk '{split($0,r,"/"); print r[length(r)]}')
+echo 'intercepted '$cni' cni with command: ' $CNI_COMMAND ' and caller: ' $(ps -o comm= $PPID) | logger -t cni
+stdin="$([[ -p /dev/stdin ]] && cat -)"
+
+dir=/tmp/cni_logging;
+if [ ! -d $dir ]; then
+	mkdir $dir
+fi
+current_time=$(date "+%Y.%m.%d-%H.%M.%S.")
+current_millis=$(($(date +%N) / 1000))
+if [[ $CNI_COMMAND = 'VERSION' ]]; then
+	file_name=/dev/zero
+else
+	file_name=$dir/$current_time$current_millis'-'$cni'-'$CNI_COMMAND
+fi
+
+env | grep -e 'CNI_' > $file_name'_env'
+
+# source of this clever snippet of code: https://stackoverflow.com/a/41069638
+# if you want to understand how this "magic" work, read this: https://wiki.bash-hackers.org/howto/redirection_tutorial
+: catch STDOUT STDERR cmd args..
+catch()
+{
+	eval "$({
+	__2="$(
+	  { __1="$("${@:3}")"; } 2>&1;
+		    ret=$?;
+		      printf '%q=%q\n' "$1" "$__1" >&2;
+		        exit $ret
+			  )"
+			  ret="$?";
+			  printf '%s=%q\n' "$2" "$__2" >&2;
+			  printf '( exit %q )' "$ret" >&2;
+		  } 2>&1 )";
+}
+
+:  pipe_stdin
+pipe_stdin()
+{
+(/opt/cni/bin/real_$cni <<EOF
+$stdin
+EOF
+)
+}
+
+catch stdout stderr pipe_stdin $@
+echo $stdin > $file_name'_stdin'
+echo $stdout > $file_name'_stdout'
+echo $stderr > $file_name'_stderr'
+#printf '%s' "$stdout" | logger -t cni # uncomment if you want to show the output of the CNI call
+printf '%s\n' "${stdout}"
+printf '%s\n' "$stderr" 1>&2
+```
 
 Once this is done, you will see many (depending on the number of pods) entries (tagged with the `cni` tag) in your journal, each corresponding to a CRI/CNI exchange. You can list them with `journalctl -t cni` :
 

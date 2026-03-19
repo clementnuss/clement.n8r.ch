@@ -29,4 +29,99 @@ The code is available in the following GitHub gist, but the key aspects are:
 
 Hoping this helps someone make safer backups :)
 
-{{< gist clementnuss d66ff435f11570944f646b4f8a1677be>}}
+### `cronjob.yaml`
+
+```yaml
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mariadb-restic-backup
+spec:
+  schedule: "*/15 * * * *"
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          initContainers:
+            - name: mariadb-dump
+              image: mariadb:latest
+              env:
+                - name: USER
+                  value: backup
+                - name: PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: mariadb-backup-credentials
+                      key: database_password
+                - name: DB_HOST
+                  value: mariadb.appl-mariadb.svc.cluster.local
+                - name: DB_PORT
+                  value: "3306"
+              workingDir: "/work"
+              command: ["/bin/bash", "-c"]
+              args:
+                - |
+                  set -e
+                  ARGS=(--host="$DB_HOST" --port="$DB_PORT" --user="$USER" --password="$PASSWORD --skip-ssl")
+
+                  databases=$(mariadb "${ARGS[@]}" \
+                      --execute 'show databases' --skip-column-names --batch | \
+                      grep -vE 'mysql|information_schema|performance_schema|sys')
+
+                  for db in  $databases; do
+                      echo "$db"
+                      mariadb-dump "${ARGS[@]}" "$db" | \
+                      gzip --rsyncable > ./"$db".sql.gz
+                  done
+              volumeMounts:
+                - mountPath: /work
+                  name: work
+          containers:
+            - name: restic-backup
+              image: restic/restic
+              envFrom:
+                - secretRef:
+                    name: mariadb-backup-credentials
+                    optional: false
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  set -e
+                  restic backup /work && \
+                  restic unlock && \
+                  restic forget --group-by paths --keep-hourly 24 --keep-daily 7 --keep-monthly 24 && \
+                  restic prune
+              resources:
+                limits:
+                  cpu: 1000m
+                  memory: 512Mi
+              volumeMounts:
+                - mountPath: /work
+                  name: work
+          restartPolicy: OnFailure
+          volumes:
+            - name: work
+              emptyDir:
+                sizeLimit: 512Mi
+```
+
+### `secrets.yaml`
+
+```yaml
+---
+apiVersion: v1
+kind: Secret
+metadata:
+    name: mariadb-backup-credentials
+type: Opaque
+stringData:
+    database_password: change.me # maridb backup user's password
+
+    RESTIC_PASSWORD_COMMAND: echo your-repo-password
+    RESTIC_REPOSITORY: s3:some-repo-id.eu.r2.cloudflarestorage.com/mariadb-backup
+    AWS_ACCESS_KEY_ID: access_key
+    AWS_SECRET_ACCESS_KEY: secret_key
+```
