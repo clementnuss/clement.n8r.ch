@@ -7,7 +7,7 @@ cover:
 tags: [chiots, bouvier bernois, border collie, chien, élevage]
 ---
 
-Nous vendons encore 4 femelles et 2 mâles croisés Bouvier Bernois / Border Collie,
+Nous vendons encore 1 femelle et 2 mâles croisés Bouvier Bernois / Border Collie,
 de la deuxième portée de notre chienne Stella.
 
 Les chiots sont nés le 3 février 2026, et seront pucés et vaccinés le 15 avril.
@@ -64,7 +64,7 @@ Django est un croisé Border Collie - Bouvier Appenzellois
 
 ![Chiot 3 - Femelle](https://media.n8r.ch/pictures/2026-puppies/3.jpg)
 
-### Chiot 4 - Femelle
+### ~~Chiot 4 - Femelle~~ — réservée
 
 ![Chiot 4 - Femelle](https://media.n8r.ch/pictures/2026-puppies/4.jpg)
 
@@ -72,11 +72,11 @@ Django est un croisé Border Collie - Bouvier Appenzellois
 
 ![Chiot 5 - Mâle](https://media.n8r.ch/pictures/2026-puppies/5.jpg)
 
-### Chiot 6 - Femelle
+### ~~Chiot 6 - Femelle~~ — réservée
 
 ![Chiot 6 - Femelle](https://media.n8r.ch/pictures/2026-puppies/6.jpg)
 
-### Chiot 7 - Femelle
+### ~~Chiot 7 - Femelle~~ — réservée
 
 ![Chiot 7 - Femelle](https://media.n8r.ch/pictures/2026-puppies/7.jpg)
 
