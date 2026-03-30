@@ -8,6 +8,6 @@ draft = false
 date = "2026-03-25T15:00:00+01:00"
 author = "Clément Nussbaumer"
 image = "/images/talks/2026-03-kubecon-eu.jpg"
-slides_url = "https://media.n8r.ch/pdfs/2026/banking-on-reliability-kubecon-eu-2026.pdf"
+slides_url = "https://media.n8r.ch/pdfs/2026/2026-03-banking-on-reliability-kubecon-eu-2026.pdf"
 blog_url = "/articles/2026-03-banking-on-reliability-kubecon.en.md"
 +++
