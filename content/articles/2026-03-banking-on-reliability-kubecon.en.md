@@ -540,7 +540,7 @@ A Tomcat-based e-finance application serving ~1.7M requests/day on one ingress.
 ingress-nginx error logs contain the **FQDN**, not the ingress name. We were
 searching for the wrong thing. Once we filtered by hostname, we found:
 
-```
+```text
 upstream prematurely closed connection while reading response header from upstream
 ```
 
