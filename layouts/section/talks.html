@@ -22,7 +22,12 @@
 			<a style="box-shadow: 0 1px;" target="_blank" href="{{ .Params.slides_url }}">Slides</a>
 		{{ end }}
 		{{ if .Params.recording_url }}
-		and	<a style="box-shadow: 0 1px;" target="_blank" href="{{ .Params.recording_url }}">Recording</a>
+		·	<a style="box-shadow: 0 1px;" target="_blank" href="{{ .Params.recording_url }}">Recording</a>
+		{{ end }}
+		{{ if .Params.blog_url }}
+			{{ with site.GetPage .Params.blog_url }}
+		·	<a style="box-shadow: 0 1px;" href="{{ .RelPermalink }}">Blog article</a>
+			{{ end }}
 		{{ end }}
 		</div>
 		<footer class="entry-footer">
