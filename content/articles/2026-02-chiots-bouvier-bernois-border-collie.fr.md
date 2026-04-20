@@ -7,7 +7,7 @@ cover:
 tags: [chiots, bouvier bernois, border collie, chien, élevage]
 ---
 
-**Il reste encore 1 mâle disponible !**
+**Tous les chiots sont réservés.**
 
 8 chiots croisés Bouvier Bernois / Border Collie,
 de la deuxième portée de notre chienne Stella.
@@ -21,9 +21,6 @@ et sortis plusieurs fois par jour sur une exploitation agricole.
 
 Nous les vendons au prix de **500.- CHF / chiot**, comprenant la vaccination,
 le puçage et un sachet de croquettes.
-
-Pour toute question ou réservation, n'hésitez pas à nous contacter par email:
-[clement@n8r.ch](mailto:clement@n8r.ch).
 
 ---
 
@@ -82,6 +79,6 @@ Django est un croisé Border Collie - Bouvier Appenzellois
 
 ![Chiot 7 - Femelle](https://media.n8r.ch/pictures/2026-puppies/7.jpg)
 
-### Chiot 8 - Mâle
+### ~~Chiot 8 - Mâle~~ — réservé
 
 ![Chiot 8 - Mâle](https://media.n8r.ch/pictures/2026-puppies/8.jpg)
