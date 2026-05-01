@@ -8,7 +8,7 @@ tags: [kubernetes, security, cve, linux, talos, cilium, container-escape]
 ---
 
 > **Work in progress.** This article is incomplete. Some exploit details are
-> intentionally omitted.
+> intentionally omitted. I'll complete it on May 4th
 
 ## Context
 
