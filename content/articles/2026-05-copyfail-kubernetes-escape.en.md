@@ -17,6 +17,11 @@ Kubernetes platform supporting banking workloads. Our production clusters run
 Debian 12 with kernel 6.1.158+, which happens to be **not vulnerable** to
 CVE-2026-31431 (more on that at the end).
 
+A disclaimer: I'm not a security researcher. I'm a Kubernetes and Linux
+systems engineer. I dived into the Copy Fail CVE for about 18 hours straight
+to learn new stuff and understand how bad it really was. There might be a flaw
+in my exploit chain, but I'm fairly confident it works.
+
 When the CVE [dropped publicly](https://copy.fail) on April 29, I set out to
 answer a question: **what does it take to go from an unprivileged pod to full
 node root on a vulnerable Kubernetes cluster?**
