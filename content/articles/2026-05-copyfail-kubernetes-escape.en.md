@@ -3,7 +3,7 @@ title: "Copy Fail: From Unprivileged Pod to Kubernetes Node Root"
 date: 2026-05-01T10:00:00+02:00
 slug: copyfail-cve-2026-31431-kubernetes-escape
 cover:
-  image: /images/2026/05-copyfail/cover.png
+  image: /images/2026/05-copyfail/copyfail-escape.png
 tags: [kubernetes, security, cve, linux, talos, cilium, container-escape]
 ---
 
