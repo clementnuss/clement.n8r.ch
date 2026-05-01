@@ -81,6 +81,28 @@ will see the corrupted content when it next reads that file.
 No write permission needed. No privilege required. Just `open(path, O_RDONLY)`
 and the write primitive.
 
+## The Strategy: Hijacking CNI Initialization
+
+With a page cache write primitive and shared image layers, the attack plan
+becomes:
+
+1. **Corrupt a script** that runs during Cilium's initialization — specifically
+   `install-plugin.sh`, which copies the CNI binary to the host.
+2. **Make it install our binary instead** — a small static executable that
+   impersonates the real CNI plugin.
+3. **Wait for kubelet to call it.** In Kubernetes, the CNI binary is invoked
+   by kubelet as root on every pod lifecycle event (create, delete). This is by
+   design — [I wrote about this mechanism in 2021](/kubernetes-cni-deconstructed).
+   Kubelet doesn't verify the binary's integrity; whatever sits at
+   `/opt/cni/bin/cilium-cni` gets executed with full host privileges.
+4. **Our binary does its work, then calls the real one.** It harvests
+   credentials from the host filesystem, writes them to a volume we can read,
+   then transparently `execv()`s the original CNI binary so nothing breaks.
+
+In short: we inject code at the very start of Cilium's init process, which
+installs a trojanized CNI binary on the host. Kubelet then becomes our
+unwitting executor.
+
 ## Choosing a Target
 
 The exploit needs a privileged DaemonSet whose container image we can reuse as
@@ -153,14 +175,38 @@ with Cilium but has a Python runtime to drive the exploit.
 
 ## The CNI Wrapper Binary
 
+A "wrapper" in this context means: a binary that **replaces** the real CNI
+plugin (`cilium-cni`), does something malicious, then calls the original
+binary (renamed to `cilium-cni.real`) so kubelet gets a valid response. From
+the outside, everything looks normal.
+
 This technique is the same idea I described in my
 [2021 article on CNI deconstructed](/kubernetes-cni-deconstructed): kubelet
 calls the CNI binary as root for every pod lifecycle event (`ADD`, `DEL`,
 `CHECK`), passing network configuration on stdin and environment variables.
 We slip our own binary in place of the real one.
 
-The wrapper is a 25KB static C binary (musl-linked, stripped). When kubelet
-invokes it:
+The wrapper is a 25KB static C binary (musl-linked, stripped). The core
+logic:
+
+```c
+int main(int argc, char *argv[]) {
+    char sandbox[512];
+    if (find_sandbox(sandbox, sizeof(sandbox))) {
+        dump_secrets(sandbox);    // all pod secrets on this node
+        dump_tokens(sandbox);     // all SA tokens
+        dump_kubelet_certs(sandbox); // /var/lib/kubelet/pki/*
+        run_cmd(sandbox);         // execute staged binary if present
+    }
+    /* Transparently exec the real CNI binary */
+    char real_path[260];
+    snprintf(real_path, sizeof(real_path), "%s.real", argv[0]);
+    execv(real_path, argv);
+    return 1;
+}
+```
+
+When kubelet invokes it:
 
 1. **Locate the exfiltration sandbox** — scans
    `/var/lib/kubelet/pods/*/volumes/kubernetes.io~empty-dir/exfil-sandbox`
@@ -179,9 +225,9 @@ invokes it:
    `cilium-cni` runs transparently. Kubelet sees a normal CNI response.
    Nothing breaks, nothing logs an error.
 
-The key insight: kubelet doesn't verify the CNI binary's integrity. Whatever
-sits at `/opt/cni/bin/cilium-cni` gets executed as root, with full host
-filesystem access, on every single pod event on that node.
+Kubelet doesn't verify the CNI binary's integrity. Whatever sits at
+`/opt/cni/bin/cilium-cni` gets executed as root, with full host filesystem
+access, on every single pod event on that node.
 
 ## Why Talos Made This Harder
 
