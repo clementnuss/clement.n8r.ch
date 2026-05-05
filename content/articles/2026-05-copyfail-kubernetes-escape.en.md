@@ -9,7 +9,7 @@ tags: [kubernetes, security, cve, linux, talos, cilium, container-escape]
 
 > This article covers two complementary paths: the CNI wrapper staging chain, and the fully autonomous operator-SA compromise that eliminates the external trigger dependency. Both are proven on Talos Linux v1.12.4, Cilium v1.18.x, kernel 6.18.9.
 >
-> **Update (May 5th):** code and building blocks on GitHub: https://github.com/clementnuss/copyfail-cve-exploits
+> **Update (May 5th):** code and building blocks on GitHub: <https://github.com/clementnuss/copyfail-cve-exploits>
 
 ## Context
 
@@ -297,7 +297,7 @@ My first idea was to crash `cilium-agent` by corrupting its binary in the
 page cache. Flipping random bytes in a Go binary might cause silent
 misbehavior or a hang — we need a **guaranteed, immediate crash**. x86 has
 the right tool: the `UD2` instruction (`0F 0B`), a two-byte opcode that
-*always* raises an Invalid Opcode exception. The Linux kernel itself uses it
+_always_ raises an Invalid Opcode exception. The Linux kernel itself uses it
 for `BUG()`. On Linux, `#UD` is delivered as `SIGILL`, which terminates the
 process immediately.
 
@@ -334,14 +334,14 @@ base layers with the agent. It has a critical property that makes it a better
 target than the agent: its ServiceAccount token has **cluster-wide secret read
 access**.
 
-| Permission | cilium (agent) SA | cilium-operator SA |
-|---|---|---|
-| `get/list/watch` secrets (cluster-wide) | No | **Yes** (185 secrets, 61 ns) |
-| `delete` pods (cluster-wide) | No | **Yes** |
-| `create/update/delete` CiliumNetworkPolicies | No | **Yes** |
+| Permission                                   | cilium (agent) SA | cilium-operator SA |
+| -------------------------------------------- | ----------------- | ------------------ |
+| `get/list/watch` secrets (cluster-wide)      | Yes               | **Yes**            |
+| `delete` pods (cluster-wide)                 | No                | **Yes**            |
+| `create/update/delete` CiliumNetworkPolicies | No                | **Yes**            |
 
 The operator needs secret access for Ingress/Gateway API TLS watching. That
-token is a kubernetes *cluster-admin equivalent* for data access.
+token is a kubernetes _cluster-admin equivalent_ for data access.
 
 **How we get it:**
 
@@ -356,6 +356,7 @@ same shared image layer. We use the same entry-point injection approach:
 3. **Listen** — the operator restarts (or is recreated by the Deployment)
    and runs our shellcode at the (now corrupted) entry point.
 4. **Token received** — 1254-byte JWT:
+
    ```
    [+] RECEIVED 1254 bytes from ('10.127.64.67', 45188)
    [+] SA TOKEN CAPTURED! (1254 bytes)
