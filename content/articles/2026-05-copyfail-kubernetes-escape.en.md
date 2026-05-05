@@ -7,8 +7,9 @@ cover:
 tags: [kubernetes, security, cve, linux, talos, cilium, container-escape]
 ---
 
-> **Work in progress.** This article is incomplete. Some exploit details are
-> intentionally omitted. I'll complete it on May 4th
+> This article covers two complementary paths: the CNI wrapper staging chain, and the fully autonomous operator-SA compromise that eliminates the external trigger dependency. Both are proven on Talos Linux v1.12.4, Cilium v1.18.x, kernel 6.18.9.
+>
+> **Update (May 5th):** code and building blocks on GitHub: https://github.com/clementnuss/copyfail-cve-exploits
 
 ## Context
 
@@ -25,6 +26,17 @@ in my exploit chain, but I'm fairly confident it works.
 When the CVE [dropped publicly](https://copy.fail) on April 29, I set out to
 answer a question: **what does it take to go from an unprivileged pod to full
 node root on a vulnerable Kubernetes cluster?**
+
+The answer: stage the entire attack in under a second, then wait for the
+target pod to restart. Everything except the restart trigger is fully
+unprivileged and instantaneous.
+
+**Update (May 5th, 2026):** I went further. The autonomously-achieved path
+is now covered in this article: by corrupting the `cilium-operator` (not the
+agent) via the same page cache primitive, we can extract its ServiceAccount
+token and gain cluster-wide secret access — enough to trigger pod eviction
+ourselves. The CNI-wrapper staging chain remains valid as the simpler (but
+externally-dependent) path. Both are discussed below.
 
 The entire exploit development — from understanding the primitive to writing
 the C wrapper and staging the attack chain — was done with heavy use of
@@ -99,9 +111,10 @@ becomes:
    credentials from the host filesystem, writes them to a volume we can read,
    then transparently `execv()`s the original CNI binary so nothing breaks.
 
-In short: we inject code at the very start of Cilium's init process, which
-installs a trojanized CNI binary on the host. Kubelet then becomes our
-unwitting executor.
+In short: we stage code injection into Cilium's init process via page cache
+corruption. The next time the pod is recreated (for any reason), the modified
+init script installs a trojanized CNI binary on the host. Kubelet then becomes
+our unwitting executor.
 
 ## Choosing a Target
 
@@ -154,8 +167,10 @@ with Cilium but has a Python runtime to drive the exploit.
    This renames the real CNI binary to `.real`, extracts our wrapper from the
    image file via `dd`, and makes it executable.
 
-4. **Trigger Cilium pod restart** so init containers re-run.
-   [Open problem — see below.]
+4. **Wait for Cilium pod recreation** — a node drain or pod eviction causes
+   init containers to re-run
+   ([details below](#triggering-the-pod-restart)). The attacker cannot trigger
+   this from within the pod.
 
 5. **Init container executes the modified script** — our wrapper binary lands
    on the host at `/opt/cni/bin/cilium-cni`.
@@ -267,26 +282,106 @@ chain significantly more difficult:
   for the write primitive. Plain C with musl: 25KB. That's 6,430 `write4`
   calls — under 1 second.
 
-## Open Problem: Triggering the Restart
+## Triggering the Pod Restart
 
-The exploit requires Cilium's init containers to re-run after the page cache
-is corrupted. This means the Cilium pod needs to restart.
+The exploit requires Cilium's **init containers** to re-run after the page
+cache is corrupted. This means the Cilium **pod** must be recreated — not
+merely restarted. This distinction matters: when a container crashes and
+kubelet restarts it, init containers do **not** re-run. Only full pod
+recreation (deletion + DaemonSet controller creating a new pod) triggers init
+containers again.
 
-Ideas explored:
-- **Patch `iptables-wrapper`** — initially promising, but it turns out this
-  script is only called once during startup, not continuously. Dead end.
-- **Corrupt `cilium-agent` itself** — use the write primitive to flip a few
-  bytes in a hot section of the Go binary, causing a crash. Then immediately
-  fix the bytes back so the restart succeeds cleanly. Still a WIP — requires
-  finding a reliably-hit code path and a corruption that triggers a crash
-  rather than silent misbehavior.
-- **Wait for natural restart** — Cilium upgrades, node maintenance, OOM kills.
-  Viable but not deterministic.
-- **Direct pod deletion** — requires API access the attack pod doesn't have.
+### Crash ≠ Restart
 
-This is the one step not yet cleanly solved in a fully unprivileged,
-self-contained exploit. The page cache writes are permanent (until eviction),
-so the attacker can stage everything and wait.
+My first idea was to crash `cilium-agent` by corrupting its binary in the
+page cache. Flipping random bytes in a Go binary might cause silent
+misbehavior or a hang — we need a **guaranteed, immediate crash**. x86 has
+the right tool: the `UD2` instruction (`0F 0B`), a two-byte opcode that
+*always* raises an Invalid Opcode exception. The Linux kernel itself uses it
+for `BUG()`. On Linux, `#UD` is delivered as `SIGILL`, which terminates the
+process immediately.
+
+We place two `UD2` instructions (`0f 0b 0f 0b`) every 64 bytes across the
+`.text` section — a minefield where any code path hits a trap within 64 bytes:
+
+```python
+# 16,384 writes per 1MB of .text — takes 0.36 seconds
+for off in range(text_start, text_start + window, 64):
+    write_4bytes(fd, off, b'\x0f\x0b\x0f\x0b')
+```
+
+The agent crashes within milliseconds:
+
+```
+SIGILL at PC=0x9a66c0, instruction bytes: 0f 0b 0f 0b 76 12 55 48...
+```
+
+Cilium enters `CrashLoopBackOff`. But kubelet only restarts the **container**
+— init containers don't re-run, and our modified `install-plugin.sh` never
+executes. Restoring the original bytes (another round of `write4` calls) lets
+the agent recover cleanly. This confirms that page cache corruption is
+**immediately visible** to instruction fetch — a useful property, but not a
+restart trigger.
+
+### Autonomous Path: The cilium-operator Token
+
+Crashing the agent confirms the primitive works, but it does not solve the
+restart problem. Container restarts do not rerun init containers. We need a way
+to **trigger pod eviction from inside the attack chain**.
+
+The `cilium-operator` Deployment runs a different image but shares the same
+base layers with the agent. It has a critical property that makes it a better
+target than the agent: its ServiceAccount token has **cluster-wide secret read
+access**.
+
+| Permission | cilium (agent) SA | cilium-operator SA |
+|---|---|---|
+| `get/list/watch` secrets (cluster-wide) | No | **Yes** (185 secrets, 61 ns) |
+| `delete` pods (cluster-wide) | No | **Yes** |
+| `create/update/delete` CiliumNetworkPolicies | No | **Yes** |
+
+The operator needs secret access for Ingress/Gateway API TLS watching. That
+token is a kubernetes *cluster-admin equivalent* for data access.
+
+**How we get it:**
+
+The operator binary (`cilium-operator-generic`, 116 MB static Go) is in the
+same shared image layer. We use the same entry-point injection approach:
+
+1. **Shellcode at file offset `0x8b820`** — 214 bytes of x86_64 syscalls that
+   open `/var/run/secrets/kubernetes.io/serviceaccount/token`, read it, and
+   send it via UDP datagram to the attack pod.
+2. **Carpet bomb** — 256 UD2 instructions across 1 MB of `.text` to force a
+   crash.
+3. **Listen** — the operator restarts (or is recreated by the Deployment)
+   and runs our shellcode at the (now corrupted) entry point.
+4. **Token received** — 1254-byte JWT:
+   ```
+   [+] RECEIVED 1254 bytes from ('10.127.64.67', 45188)
+   [+] SA TOKEN CAPTURED! (1254 bytes)
+   [+] Entry point restored: e95bc8ffff
+   [+] Operator Running 1/1 (2 restarts total)
+   ```
+
+Key detail: the operator image is **distroless** (no shell, no tools). This
+forced the shellcode to be raw syscalls rather than a `system("cat ...")`
+shortcut, but the approach is identical.
+
+**What the token buys:**
+
+- Read any secret in any namespace (including kube-system bootstrap tokens,
+  TLS keys, cloud credentials).
+- Delete any pod (including the cilium-agent pod itself — triggering its
+  recreation and therefore the init containers).
+
+Once we have the operator token, we can now **delete the cilium-agent pod
+ourselves**, forcing the DaemonSet to recreate it. The init containers rerun,
+our modified `install-plugin.sh` installs the CNI wrapper, and kubelet invokes
+it as root on the next pod event.
+
+This closes the loop: page cache corruption → operator token → pod eviction
+→ CNI wrapper → host root. The only "external" event is the operator pod
+restart, which is guaranteed by the corrupt-and-restore cycle itself.
 
 ## Why PostFinance Is Not Affected
 
