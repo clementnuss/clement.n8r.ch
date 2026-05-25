@@ -3,7 +3,7 @@ title: "Making a Dumb NTP Clock Smart: DST Compensation with a Unikernel"
 date: 2026-05-23T12:00:00+02:00
 slug: ntp-dst-unikernel
 cover:
-  image: /images/2026-ntp-dst/mondaine-clock.jpg
+  image: /images/2026/05-ntp-dst/ntp-dst.png
 tags: [ntp, golang, unikernel, nanos, oci, dst, embedded]
 description: |
   My Mondaine SBB wall clock has a manual DST toggle but won't switch automatically.
