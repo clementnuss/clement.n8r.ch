@@ -68,12 +68,15 @@ Reference: 0x474F4C44
 
 ## Running as a Unikernel
 
-Instead of running a container on a general-purpose OS, I'm running this as a [Nanos](https://nanos.org) unikernel via [OPS](https://ops.city). A unikernel is a single-purpose OS image—just my binary and a minimal kernel. No SSH, no shell, no package manager, no attack surface beyond what's strictly needed. For a single-purpose NTP server that needs to run 24/7 with zero maintenance, that's appealing:
+I'd known about unikernels but never actually tried one. This project was the perfect excuse: a single-purpose NTP server that needs to run 24/7 with zero maintenance. A unikernel is just your binary and a minimal kernel—no SSH, no shell, no package manager. The main draw is that there's no OS to maintain. No security patches, no upgrade cycles, no drift.
 
-- **No OS updates** — there's no OS to update
+Some nice side effects:
+
 - **Fast boot** — milliseconds, not seconds
 - **Minimal resources** — 128 MB RAM on OCI's free tier is plenty
 - **Tiny image** — under 3 MB for the binary (timezone data embedded via `time/tzdata` import) and ~5.8 MB total as a qcow2 image including the Nanos kernel
+
+I'm running this as a [Nanos](https://nanos.org) unikernel via [OPS](https://ops.city) on OCI's free tier.
 
 ### Build and test locally
 
@@ -136,13 +139,12 @@ ops instance create ntp-dst-arm64 -t oci -c ops.arm64.json
 
 Open UDP 123 in your OCI security list for the instance's VCN, and you're done.
 
-## Why a Unikernel?
-
-The unikernel model is a natural fit: you get a single-purpose image with no OS to maintain, and 128 MB RAM on OCI's free tier is plenty.
-
 ## DNS Configuration
 
-The Mondaine clock has no setting for custom NTP servers—it hardcodes `time.pool.aliyun.com` as primary and `pool.ntp.org` as fallback. The trick is to override DNS on the router: create CNAME entries for both domains pointing to `dst-ntp.n8r.ch`, so the clock resolves them to the compensated server without knowing it.
+The Mondaine clock has no setting for custom NTP servers—it hardcodes `time.pool.aliyun.com` as primary and `pool.ntp.org` as fallback. Two ways to redirect its traffic:
+
+- **DNS override**: create CNAME entries for both domains pointing to `dst-ntp.n8r.ch`, so the clock resolves them to the compensated server without knowing it.
+- **DNAT**: on your router, DNAT all outgoing UDP 123 traffic from the clock's IP to `dst-ntp.n8r.ch`. No DNS tricks needed—every NTP packet gets transparently redirected.
 
 Configure the clock's UTC offset to +1h (CET/winter time). The server handles the rest—the clock now shows the correct time year-round.
 
