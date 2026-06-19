@@ -121,7 +121,12 @@ l'ordre inverse.
 1. enfin, on décroche la remorque et on peut partir avec le véhicule tracteur
 
 ⚠️ si la remorque est immobilisée pendant une longue période, il faut mettre le
-timon évidence, par exemple à l'aide d'un cône de signalisation
+timon en évidence, par exemple à l'aide d'un cône de signalisation. À défaut de
+cône, un gilet réfléchissant posé sur le timon fait tout aussi bien l'affaire.
+
+⚠️ après un long stationnement, il faut également contrôler l'état des
+catadioptres: ils ne doivent pas être sales, car des catadioptres encrassés ne
+sont plus visibles et la remorque ne serait alors pas conforme.
 
 ## Conclusion
 
