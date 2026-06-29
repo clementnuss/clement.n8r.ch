@@ -4,6 +4,10 @@ main:
     name: articles
     url: /articles
     weight: 10
+  - identifier: utilitaires
+    name: utilitaires
+    url: /utilities
+    weight: 15
   - identifier: tags
     name: tags
     url: /tags

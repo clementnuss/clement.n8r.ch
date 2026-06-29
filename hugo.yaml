@@ -23,6 +23,8 @@ languages:
         buttons:
           - name: Articles
             url: articles
+          - name: Utilitaires
+            url: utilities
           - name: Tags
             url: tags
     title: n8r | Clément
@@ -42,6 +44,8 @@ languages:
         buttons:
           - name: Articles
             url: articles
+          - name: Utilities
+            url: utilities
           - name: Tags
             url: tags
     title: n8r | Clément

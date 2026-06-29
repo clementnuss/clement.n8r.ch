@@ -8,6 +8,10 @@ main:
     name: talks
     url: /talks
     weight: 10
+  - identifier: utilities
+    name: utilities
+    url: /utilities
+    weight: 15
   - identifier: tags
     name: tags
     url: /tags
