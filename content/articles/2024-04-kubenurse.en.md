@@ -154,14 +154,303 @@ If you want to take a look at the implementation for the node filtering, follow
 over
 [here](https://github.com/postfinance/kubenurse/blob/v1.13.0/internal/servicecheck/neighbours.go#L110-L138).
 
-To make it more visual, here is an example with 6 nodes, where each node
-queries the next 3 nodes (i.e. the limit is set to 3 here):
+To make it more visual, here is an interactive visualization where you can play
+with the number of nodes and neighbours. Feel free to adjust the sliders and
+click on a node to see which neighbours it queries. Toggle between hash order
+and linear order, or compare the filtered O(n) approach against the unfiltered
+O(n²) one to appreciate the reduction in total checks.
 
-![node filtering drawing](/images/2024-kubenurse/kubenurse-node-filtering.png)
+{{< notice note >}}
+This interactive visualization was added to the article in July 2026, ported
+from my [KubeCon EU 2026 talk]({{< ref "2026-03-banking-on-reliability-kubecon.en.md" >}}).
+{{< /notice >}}
 
-Thanks to this filtering, every node is making queries to at most 3 (10 per
-default, configurable) nodes in its neighbourhood, unless one of the nodes is
-cordoned or deleted, in which case the following node in the list is picked.
+<div class="hash-ring-widget-wrapper">
+<div class="hash-ring-widget" id="hash-ring">
+  <div class="hr-controls">
+    <label>
+      <span class="hr-label-text">Nodes: <strong id="hr-node-count-label">15</strong></span>
+      <input type="range" min="5" max="30" value="15" id="hr-node-slider" />
+    </label>
+    <label>
+      <span class="hr-label-text">Neighbors: <strong id="hr-neighbor-count-label">5</strong></span>
+      <input type="range" min="1" max="14" value="5" id="hr-neighbor-slider" />
+    </label>
+    <button class="hr-toggle-btn hr-order-toggle active" id="hr-order-btn">🔀 hash order</button>
+  </div>
+  <div class="hr-controls">
+    <button class="hr-toggle-btn hr-order-toggle" id="hr-all-on-btn">⊙ filtered <span class="hr-bigO">O(n)</span></button>
+    <button class="hr-toggle-btn" id="hr-n2-btn">all <span class="hr-bigO">O(n²)</span></button>
+  </div>
+  <svg viewBox="0 0 340 340" class="hr-ring-svg" id="hr-svg">
+    <defs>
+      <marker id="hr-arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+        <polygon points="0 0, 8 3, 0 6" fill="#ff7f15" opacity="0.8" />
+      </marker>
+    </defs>
+  </svg>
+  <div class="hr-stats" id="hr-stats">
+    Total checks: <strong id="hr-total">75</strong>
+    <span class="hr-formula" id="hr-formula">(15 × 5)</span>
+    <span class="hr-hint" id="hr-hint">click a node to see its neighbors</span>
+  </div>
+</div>
+</div>
+
+<style>
+.hash-ring-widget-wrapper { display: flex; justify-content: center; margin: 2rem 0; }
+.hash-ring-widget { display: flex; flex-direction: column; align-items: center; gap: 6px; font-family: 'Inter', system-ui, sans-serif; color: #333; width: 100%; }
+.hr-controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center; }
+.hr-controls label { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.hr-label-text { font-size: 11px; color: #555; }
+.hr-controls input[type="range"] { width: 90px; accent-color: #ff7f15; height: 4px; }
+.hr-toggle-btn { font-size: 11px; padding: 4px 10px; border-radius: 12px; border: 1.5px solid #ff7f15; background: white; color: #ff7f15; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+.hr-toggle-btn.active { background: #dc2626; border-color: #dc2626; color: white; }
+.hr-toggle-btn.hr-order-toggle.active { background: #ff7f15; border-color: #ff7f15; color: white; }
+.hr-ring-svg { width: 100%; max-width: 600px; }
+.hr-stats { font-size: 13px; color: #555; text-align: center; }
+.hr-stats strong { color: #ff7f15; font-size: 15px; }
+.hr-stats strong.red { color: #dc2626; }
+.hr-formula { font-size: 11px; color: #999; margin-left: 4px; }
+.hr-hint { font-size: 10px; color: #aaa; margin-left: 6px; }
+.hr-bigO { font-family: 'Cambria Math', 'Latin Modern Math', Georgia, 'Times New Roman', serif; font-style: italic; font-size: 1.15em; letter-spacing: 0.5px; }
+</style>
+
+<script>
+(function() {
+  const CX = 170, CY = 170, R = 140;
+  let nodeCount = 15, neighborCount = 5, selectedNode = null;
+  let showAllToAll = false, showAllFiltered = false, hashOrder = true;
+  let hashCache = new Map();
+
+  async function sha256_32(str) {
+    const data = new TextEncoder().encode(str);
+    const buf = await crypto.subtle.digest('SHA-256', data);
+    return new DataView(buf).getUint32(0);
+  }
+
+  function nodeColor(idx, total) {
+    return 'hsl(' + (idx / total) * 360 + ', 70%, 55%)';
+  }
+
+  async function computeHashes(count) {
+    const map = new Map();
+    for (let i = 0; i < count; i++) {
+      const name = 'node-' + String(i + 1).padStart(2, '0');
+      map.set(name, await sha256_32(name));
+    }
+    hashCache = map;
+    render();
+  }
+
+  function getNodes() {
+    if (hashCache.size < nodeCount) return [];
+    const arr = [];
+    for (let i = 0; i < nodeCount; i++) {
+      const name = 'node-' + String(i + 1).padStart(2, '0');
+      arr.push({ name: name, hash: hashCache.get(name), originalIndex: i });
+    }
+    arr.sort(function(a, b) { return a.hash - b.hash; });
+    const withRing = arr.map(function(n, i) { return Object.assign({}, n, { ringIndex: i }); });
+    return withRing.map(function(n) {
+      const pos = hashOrder ? n.ringIndex : n.originalIndex;
+      const angle = (pos / nodeCount) * 2 * Math.PI - Math.PI / 2;
+      return Object.assign({}, n, {
+        angle: angle,
+        x: CX + R * Math.cos(angle),
+        y: CY + R * Math.sin(angle),
+        color: nodeColor(n.originalIndex, nodeCount)
+      });
+    });
+  }
+
+  function effectiveNeighbors() { return Math.min(neighborCount, nodeCount - 1); }
+
+  function getNeighborIndices(ringIndex) {
+    const indices = [];
+    for (let j = 1; j <= effectiveNeighbors(); j++) {
+      indices.push((ringIndex + j) % nodeCount);
+    }
+    return indices;
+  }
+
+  function shortenedLine(from, to, margin) {
+    margin = margin || 12;
+    const dx = to.x - from.x, dy = to.y - from.y;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    if (len < margin * 2) return { x1: from.x, y1: from.y, x2: to.x, y2: to.y };
+    const ratio = (len - margin) / len;
+    return { x1: from.x, y1: from.y, x2: from.x + dx * ratio, y2: from.y + dy * ratio };
+  }
+
+  function svgEl(tag, attrs) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (const k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  }
+
+  function render() {
+    const svg = document.getElementById('hr-svg');
+    if (!svg) return;
+    const nodes = getNodes();
+    if (nodes.length === 0) return;
+    // Clear all except defs
+    const defs = svg.querySelector('defs');
+    svg.innerHTML = '';
+    svg.appendChild(defs);
+
+    // Ring circle
+    svg.appendChild(svgEl('circle', { cx: CX, cy: CY, r: R, fill: 'none', stroke: '#ddd', 'stroke-width': '1.5' }));
+
+    // Tick marks
+    for (let i = 0; i < 60; i++) {
+      const a = (i / 60) * 2 * Math.PI;
+      svg.appendChild(svgEl('line', {
+        x1: CX + (R - 4) * Math.cos(a), y1: CY + (R - 4) * Math.sin(a),
+        x2: CX + (R + 4) * Math.cos(a), y2: CY + (R + 4) * Math.sin(a),
+        stroke: '#ccc', 'stroke-width': '0.5'
+      }));
+    }
+
+    // O(n²) connections
+    if (showAllToAll) {
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          svg.appendChild(svgEl('line', {
+            x1: nodes[i].x, y1: nodes[i].y, x2: nodes[j].x, y2: nodes[j].y,
+            stroke: '#dc2626', 'stroke-width': '0.8', opacity: '0.45'
+          }));
+        }
+      }
+    }
+
+    // Neighbor connections
+    if (!showAllToAll) {
+      var conns = [];
+      if (showAllFiltered) {
+        for (let ri = 0; ri < nodes.length; ri++) {
+          var indices = getNeighborIndices(ri);
+          for (const idx of indices) conns.push({ from: nodes[ri], to: nodes[idx] });
+        }
+      } else if (selectedNode !== null && nodes[selectedNode]) {
+        var sel = nodes[selectedNode];
+        var indices = getNeighborIndices(selectedNode);
+        for (const idx of indices) conns.push({ from: sel, to: nodes[idx] });
+      }
+      for (const c of conns) {
+        const sl = shortenedLine(c.from, c.to);
+        svg.appendChild(svgEl('line', {
+          x1: sl.x1, y1: sl.y1, x2: sl.x2, y2: sl.y2,
+          stroke: '#ff7f15', 'stroke-width': '1.5', opacity: '0.7',
+          'marker-end': 'url(#hr-arrowhead)'
+        }));
+      }
+    }
+
+    // Nodes
+    const neighborSet = new Set();
+    if (selectedNode !== null) getNeighborIndices(selectedNode).forEach(function(i) { neighborSet.add(i); });
+
+    for (const node of nodes) {
+      const isSel = selectedNode === node.ringIndex;
+      const isNeighbor = neighborSet.has(node.ringIndex);
+      const isDimmed = showAllToAll;
+      const r = isSel ? 13 : isNeighbor ? 11 : 10;
+      const c = svgEl('circle', {
+        cx: node.x, cy: node.y, r: r, fill: node.color,
+        stroke: 'white', 'stroke-width': isSel ? '2.5' : '2',
+        style: 'cursor:pointer;transition:cx 0.6s ease,cy 0.6s ease;' + (isDimmed ? 'opacity:0.5;filter:saturate(0.3);' : '')
+      });
+      c.addEventListener('click', (function(ri) {
+        return function() { selectedNode = selectedNode === ri ? null : ri; render(); };
+      })(node.ringIndex));
+      svg.appendChild(c);
+
+      const t = svgEl('text', {
+        x: CX + (R + 24) * Math.cos(node.angle),
+        y: CY + (R + 24) * Math.sin(node.angle),
+        'text-anchor': 'middle', 'dominant-baseline': 'central',
+        style: 'font-size:8px;fill:' + ((isSel || isNeighbor) ? '#333;font-weight:bold;font-size:9px;' : '#666;') +
+          'pointer-events:none;user-select:none;transition:x 0.6s ease,y 0.6s ease;'
+      });
+      t.textContent = node.name.replace('node-', '');
+      svg.appendChild(t);
+    }
+
+    // Stats
+    const en = effectiveNeighbors();
+    const total = showAllToAll ? nodeCount * (nodeCount - 1) : nodeCount * en;
+    const totalEl = document.getElementById('hr-total');
+    const formulaEl = document.getElementById('hr-formula');
+    const hintEl = document.getElementById('hr-hint');
+    if (totalEl) {
+      totalEl.textContent = total;
+      totalEl.className = showAllToAll ? 'red' : '';
+    }
+    if (formulaEl) formulaEl.textContent = '(' + nodeCount + ' × ' + (showAllToAll ? (nodeCount - 1) : en) + ')';
+    if (hintEl) hintEl.textContent = (!showAllToAll && selectedNode === null) ? 'click a node to see its neighbors' : (!showAllToAll && selectedNode !== null) ? '← click a node' : '';
+  }
+
+  // Wire controls
+  document.addEventListener('DOMContentLoaded', function() {
+    var ns = document.getElementById('hr-node-slider');
+    var nbs = document.getElementById('hr-neighbor-slider');
+    var orderBtn = document.getElementById('hr-order-btn');
+    var allOnBtn = document.getElementById('hr-all-on-btn');
+    var n2Btn = document.getElementById('hr-n2-btn');
+
+    if (!ns) return;
+
+    ns.addEventListener('input', function() {
+      nodeCount = parseInt(this.value);
+      document.getElementById('hr-node-count-label').textContent = nodeCount;
+      nbs.max = nodeCount - 1;
+      if (neighborCount >= nodeCount) { neighborCount = nodeCount - 1; nbs.value = neighborCount; document.getElementById('hr-neighbor-count-label').textContent = neighborCount; }
+      selectedNode = null;
+      computeHashes(nodeCount);
+    });
+
+    nbs.addEventListener('input', function() {
+      neighborCount = parseInt(this.value);
+      document.getElementById('hr-neighbor-count-label').textContent = neighborCount;
+      render();
+    });
+
+    orderBtn.addEventListener('click', function() {
+      hashOrder = !hashOrder;
+      this.textContent = hashOrder ? '🔀 hash order' : '🔢 linear order';
+      this.classList.toggle('active', hashOrder);
+      render();
+    });
+
+    allOnBtn.addEventListener('click', function() {
+      showAllFiltered = !showAllFiltered;
+      if (showAllFiltered) showAllToAll = false;
+      selectedNode = null;
+      this.classList.toggle('active', showAllFiltered);
+      this.innerHTML = showAllFiltered ? '✓ filtered <span class="hr-bigO">O(n)</span>' : '⊙ filtered <span class="hr-bigO">O(n)</span>';
+      n2Btn.classList.remove('active');
+      render();
+    });
+
+    n2Btn.addEventListener('click', function() {
+      showAllToAll = !showAllToAll;
+      if (showAllToAll) showAllFiltered = false;
+      selectedNode = null;
+      this.classList.toggle('active', showAllToAll);
+      allOnBtn.classList.remove('active');
+      allOnBtn.innerHTML = '⊙ filtered <span class="hr-bigO">O(n)</span>';
+      render();
+    });
+
+    computeHashes(nodeCount);
+  });
+})();
+</script>
+
+Thanks to this filtering, every node is making queries to at most 10 nodes
+(configurable) in its neighbourhood, unless one of the nodes is cordoned or
+deleted, in which case the following node in the list is picked.
 
 This filtering introduces many benefits:
 

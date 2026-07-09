@@ -181,8 +181,8 @@ Use the interactive visualization below to explore this:
     <button class="hr-toggle-btn hr-order-toggle active" id="hr-order-btn">🔀 hash order</button>
   </div>
   <div class="hr-controls">
-    <button class="hr-toggle-btn hr-order-toggle" id="hr-all-on-btn">⊙ all O(n)</button>
-    <button class="hr-toggle-btn" id="hr-n2-btn">O(n²)</button>
+    <button class="hr-toggle-btn hr-order-toggle" id="hr-all-on-btn">⊙ filtered <span class="hr-bigO">O(n)</span></button>
+    <button class="hr-toggle-btn" id="hr-n2-btn">all <span class="hr-bigO">O(n²)</span></button>
   </div>
   <svg viewBox="0 0 340 340" class="hr-ring-svg" id="hr-svg">
     <defs>
@@ -215,6 +215,7 @@ Use the interactive visualization below to explore this:
 .hr-stats strong.red { color: #dc2626; }
 .hr-formula { font-size: 11px; color: #999; margin-left: 4px; }
 .hr-hint { font-size: 10px; color: #aaa; margin-left: 6px; }
+.hr-bigO { font-family: 'Cambria Math', 'Latin Modern Math', Georgia, 'Times New Roman', serif; font-style: italic; font-size: 1.15em; letter-spacing: 0.5px; }
 </style>
 
 <script>
@@ -429,7 +430,7 @@ Use the interactive visualization below to explore this:
       if (showAllFiltered) showAllToAll = false;
       selectedNode = null;
       this.classList.toggle('active', showAllFiltered);
-      this.textContent = showAllFiltered ? '✓ all O(n)' : '⊙ all O(n)';
+      this.innerHTML = showAllFiltered ? '✓ filtered <span class="hr-bigO">O(n)</span>' : '⊙ filtered <span class="hr-bigO">O(n)</span>';
       n2Btn.classList.remove('active');
       render();
     });
@@ -440,7 +441,7 @@ Use the interactive visualization below to explore this:
       selectedNode = null;
       this.classList.toggle('active', showAllToAll);
       allOnBtn.classList.remove('active');
-      allOnBtn.textContent = '⊙ all O(n)';
+      allOnBtn.innerHTML = '⊙ filtered <span class="hr-bigO">O(n)</span>';
       render();
     });
 
