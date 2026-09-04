@@ -1,4 +1,14 @@
 {{ define "main" }}
+	<style>
+		/* PaperMod bumps the whole card on :active (transform: scale(.96),
+		   transition .1s). That moves the Slides/Recording links DURING the
+		   click, so mousedown and mouseup land on different elements and the
+		   browser fires the click on the card instead of the link. A right-click
+		   needs no mousedown/mouseup agreement, which is why it always worked.
+		   Kill every geometry change on these cards; static feedback instead. */
+		#post-list .post-entry { transition: none; }
+		#post-list .post-entry:active { transform: none; background: var(--tertiary); }
+	</style>
 	    {{ range .Paginator.Pages.GroupBy "Type" }}
 	<ul id="post-list">
 		<header class="page-header">
@@ -9,20 +19,19 @@
 		<figure class="entry-cover" style="display: flex; justify-content: center;">
 			<img loading="lazy" src="{{ .Params.image }}" alt="" style="max-height: 300px; width: auto; object-fit: cover;">
 		</figure>
-		</figure>
-		<header>
+		<header class="entry-header">
 			<h3 class="entry-hint-parent" >
 				{{ .LinkTitle }}
 			</h3>
 		</header>
-		<div class="entry-content">
+		<div class="entry-content" style="position: relative; z-index: 1;">
 			{{ .Description | markdownify }}
 		{{ if .Params.slides_url }}
-		</br>
-			<a style="box-shadow: 0 1px;" target="_blank" href="{{ .Params.slides_url }}">Slides</a>
+		<br>
+			<a style="box-shadow: 0 1px;" target="_blank" rel="noopener" href="{{ .Params.slides_url }}">Slides</a>
 		{{ end }}
 		{{ if .Params.recording_url }}
-		·	<a style="box-shadow: 0 1px;" target="_blank" href="{{ .Params.recording_url }}">Recording</a>
+		·	<a style="box-shadow: 0 1px;" target="_blank" rel="noopener" href="{{ .Params.recording_url }}">Recording</a>
 		{{ end }}
 		{{ if .Params.blog_url }}
 			{{ with site.GetPage .Params.blog_url }}
@@ -33,7 +42,6 @@
 		<footer class="entry-footer">
 			{{ .Date.Format "Jan 2 2006" }}
 		</footer>
-			<a href='{{ .Params.external_url }}'></a>
 		</article>
 	    {{ end }}
 	</ul>
