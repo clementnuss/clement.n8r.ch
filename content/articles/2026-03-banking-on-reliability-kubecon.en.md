@@ -516,7 +516,7 @@ fork and adapt. It covers:
 Deploy as a CronJob, stream metrics to an OTLP endpoint, and you get instant
 cluster health monitoring with alert rules that trigger on test failures.
 
-![e2e tests Grafana dashboard](/images/2026/03-kubecon/e2e-tests-dashboard.png)
+![e2e tests Grafana dashboard](/images/2026/03-kubecon/e2e-tests-dashboard.webp)
 
 ---
 

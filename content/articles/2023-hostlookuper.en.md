@@ -3,7 +3,7 @@ title: "DNS servers monitoring"
 date: 2023-07-31T16:23:32+01:00
 slug: dns-servers-monitoring
 cover:
-  image: /images/2023-hostlookuper/hostlookuper-dashboard.png
+  image: /images/2023-hostlookuper/hostlookuper-dashboard.webp
 tags: [dns, go, monitoring]
 aliases:
 - /dns-servers-monitoring
@@ -59,7 +59,7 @@ After letting it run for some time (see the [example Kubernetes deployment](http
 
 You get the return code (`RCODE`) repartition, the number of errors per DNS server, a heatmap of the duration of the request, and finally a per-server latency average.
 
-![Hostlookuper Grafana dashboard](/images/2023-hostlookuper/hostlookuper-dashboard.png)
+![Hostlookuper Grafana dashboard](/images/2023-hostlookuper/hostlookuper-dashboard.webp)
 
 ## How does it help?
 

@@ -3,3 +3,4 @@ media/** filter=lfs diff=lfs merge=lfs -text
 *.jpeg filter=lfs diff=lfs merge=lfs -text
 *.jpg filter=lfs diff=lfs merge=lfs -text
 static/**/*.js filter=lfs diff=lfs merge=lfs -text
+**.woff filter=lfs diff=lfs merge=lfs -text

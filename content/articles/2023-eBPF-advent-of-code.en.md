@@ -4,6 +4,7 @@ date: 2023-12-09T15:58:38+02:00
 slug: advent-of-code-an-ebpf-take
 cover:
   image: /images/2023-ebpf-advent-of-code/AoC-eBPF.jpeg
+math: true
 tags: [c, linux, kernel, ebpf, adventofcode2023]
 aliases:
 - /advent-of-code-an-ebpf-take

@@ -3,7 +3,8 @@ title: "Kubenurse: The In-Cluster Doctor Making Network Rounds"
 date: 2024-04-07T12:12:16+00:00
 slug: kubenurse-k8s-network-monitoring
 cover:
-  image: /images/2024-kubenurse/kubenurse.png
+  image: /images/2024-kubenurse/kubenurse.webp
+math: true
 tags: [kubernetes, kubenurse, network monitoring, k8s, latency, histogram, CNI]
 aliases:
 - /kubenurse
@@ -55,7 +56,7 @@ with a `type` label, as can be seen in this
 [excalidraw.com](https://excalidraw.com/) drawing which illustrates the
 different request types.
 
-![kubenurse_request_types](/images/2024-kubenurse/kubenurse.png)
+![kubenurse_request_types](/images/2024-kubenurse/kubenurse.webp)
 
 ---
 
@@ -117,7 +118,7 @@ the [example Grafana
 dashboard](https://github.com/postfinance/kubenurse/blob/175c17cec93f373166a4df042d34085659df67c2/doc/grafana-kubenurse.json)
 to start visualizing the metrics:
 
-![kubenurse grafana overview](/images/2024-kubenurse/grafana.png)
+![kubenurse grafana overview](/images/2024-kubenurse/grafana.webp)
 
 ---
 

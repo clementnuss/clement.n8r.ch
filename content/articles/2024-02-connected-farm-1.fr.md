@@ -3,7 +3,7 @@ title: "Une Ferme Connectée: partie 1 - La Traite 🐄 🥛"
 date: 2024-02-17T17:00:14+02:00
 slug: ferme-connectee-la-traite
 cover:
-   image: /images/2024-milk-exporter/grafana-dashboard-excerpt.png
+   image: /images/2024-milk-exporter/grafana-dashboard-excerpt.webp
 tags: [kubernetes, metrics, grafana, mdb, access, lait, vache, ferme]
 ---
 
@@ -28,7 +28,7 @@ Mon épouse et sa famille traient quotidiennement 65 vaches laitières Holstein,
 sont enregistrées dans un logiciel appelé Alpro, qui n'a plus été mis à jour
 depuis 2009, et qui ressemble à ça:
 
-![Screenshot Alpro Windows](/images/2024-milk-exporter/alpro-screenshot.png)
+![Screenshot Alpro Windows](/images/2024-milk-exporter/alpro-screenshot.webp)
 
 Le logiciel permet d'obtenir un grand nombre d'informations sur les vaches,
 comme la quantité de lait pour chaque traite, la quantité de concentré
@@ -99,4 +99,4 @@ depuis son natel (/téléphone portable/smartphone)!
 Je clôture donc cet article avec un aperçu de la visualisation. Le prochain
 épisode concernera l'installation de méthanisation/biogaz de l'exploitation !
 
-![Grafana dashboard](/images/2024-milk-exporter/grafana-dashboard.png)
+![Grafana dashboard](/images/2024-milk-exporter/grafana-dashboard.webp)

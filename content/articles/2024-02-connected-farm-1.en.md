@@ -3,7 +3,7 @@ title: "A Connected Farm, part 1 - Milking 🐄 🥛"
 date: 2024-02-17T17:00:14+02:00
 slug: connected-farm-milking
 cover:
-   image: /images/2024-milk-exporter/grafana-dashboard-excerpt.png
+   image: /images/2024-milk-exporter/grafana-dashboard-excerpt.webp
 tags: [kubernetes, metrics, grafana, mdb, access, milk, farm, cow]
 ---
 
@@ -25,7 +25,7 @@ My wife and her family milk 65 Holstein dairy cows daily, at 5:30 in the
 morning and at 4:30 in the evening for the evening milking. Milking data is
 recorded in a software called Alpro, which hasn't been updated since 2009.
 
-![Screenshot Alpro Windows](/images/2024-milk-exporter/alpro-screenshot.png)
+![Screenshot Alpro Windows](/images/2024-milk-exporter/alpro-screenshot.webp)
 
 The software provides a lot of information about the cows, such as the quantity
 of milk for each milking, the amount of concentrate distributed to the cow, the
@@ -92,4 +92,4 @@ milking duration, etc. And this can even be done from a mobile phone!
 I'll conclude this article with an overview of the visualization. The next
 episode will focus on farm's methanization plant!
 
-![Grafana dashboard](/images/2024-milk-exporter/grafana-dashboard.png)
+![Grafana dashboard](/images/2024-milk-exporter/grafana-dashboard.webp)
