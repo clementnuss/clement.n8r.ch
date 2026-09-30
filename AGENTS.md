@@ -22,6 +22,27 @@ Hugo static site using the [PaperMod](https://github.com/adityatelange/hugo-Pape
 - Large/HD images: place in `media/` and reference as `https://media.n8r.ch/<path>` (mirroring the `media/` folder structure)
 - Do NOT put large images in `static/` — they bloat the container.
 
+### Image optimization (ImageMagick)
+
+Keep images in `static/images/` small — the whole folder ships in the site
+container. Targets applied across the repo (see `git log` for reference):
+
+- Talk thumbnails / article images: max width 1600px, JPEG quality 80
+- Text-heavy screenshots (dashboards, terminal output): resize to 1600px and
+  quantize PNG to 256 colors, or use WebP q85 if quantization isn't a win
+
+```sh
+# photos / talk thumbnails -> JPEG q80, max 1600px wide, EXIF stripped
+magick input.png -auto-orient -resize '1600x>' -strip -quality 80 output.jpeg
+
+# text-heavy screenshots -> quantized PNG (keeps text crisp)
+magick input.png -auto-orient -resize '1600x>' -strip -colors 256 output.png
+```
+
+Only shrink if the result is actually smaller (check the file size, e.g. with
+`stat -c%s`); keep the original if not. If a conversion renames the file,
+update all references in `content/` (including `.fr.md` twins).
+
 ## Media sync (S3)
 
 The `media/` folder is synced to an S3 bucket via rclone (config in `hack/s3.rclone`).
@@ -30,7 +51,11 @@ Before syncing, source the credentials:
 
 ```sh
 source ~/git/github.com/clementnuss/dev-docs/blog/credentials
+rclone sync media/ s3-remote: --config hack/s3.rclone   # adjust to your rclone remote name
 ```
+
+Slides PDFs for talks go in `media/pdfs/<year>/` and must be synced before the
+`slides_url` links work publicly.
 
 ## Building
 
