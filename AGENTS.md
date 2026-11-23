@@ -32,6 +32,14 @@ container. Targets applied across the repo (see `git log` for reference):
   quantize PNG to 256 colors, or use WebP q85 if quantization isn't a win
 
 ```sh
+./hack/optimize-image.sh photo.png          # -> photo.jpeg (JPEG q80, 1600px)
+./hack/optimize-image.sh --text shot.png    # -> quantized PNG
+```
+
+It keeps the original if the result isn't smaller, and lists `content/` files
+that still reference a renamed image. The equivalent ImageMagick commands:
+
+```sh
 # photos / talk thumbnails -> JPEG q80, max 1600px wide, EXIF stripped
 magick input.png -auto-orient -resize '1600x>' -strip -quality 80 output.jpeg
 
@@ -45,14 +53,14 @@ update all references in `content/` (including `.fr.md` twins).
 
 ## Media sync (S3)
 
-The `media/` folder is synced to an S3 bucket via rclone (config in `hack/s3.rclone`).
-
-Before syncing, source the credentials:
+The `media/` folder is synced to the `media-n8r-ch` S3 bucket:
 
 ```sh
-source ~/git/github.com/clementnuss/dev-docs/blog/credentials
-rclone sync media/ s3-remote: --config hack/s3.rclone   # adjust to your rclone remote name
+./hack/sync-media.sh             # sources the credentials, uploads with public-read
+./hack/sync-media.sh --dry-run   # preview
 ```
+
+Objects must be `public-read`, otherwise media.n8r.ch returns 403.
 
 Slides PDFs for talks go in `media/pdfs/<year>/` and must be synced before the
 `slides_url` links work publicly.

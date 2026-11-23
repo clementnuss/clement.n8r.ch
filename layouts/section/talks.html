@@ -16,9 +16,11 @@
 		</header>
 	    {{ range .Pages }}
 		<article class="post-entry" >
+		{{ with .Params.image }}
 		<figure class="entry-cover" style="display: flex; justify-content: center;">
-			<img loading="lazy" src="{{ .Params.image }}" alt="" style="max-height: 300px; width: auto; object-fit: cover;">
+			<img loading="lazy" src="{{ . }}" alt="" style="max-height: 300px; width: auto; object-fit: cover;">
 		</figure>
+		{{ end }}
 		<header class="entry-header">
 			<h3 class="entry-hint-parent" >
 				{{ .LinkTitle }}
