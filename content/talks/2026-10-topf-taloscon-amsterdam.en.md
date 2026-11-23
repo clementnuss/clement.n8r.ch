@@ -9,4 +9,5 @@ date = "2026-10-15T14:45:00+02:00"
 author = "Clément Nussbaumer & Sebastian Stephan"
 image = "/images/talks/2026-10-topf-taloscon.jpeg"
 slides_url = "https://media.n8r.ch/pdfs/2026/2026-10-topf-taloscon-amsterdam-2026.pdf"
+recording_url = "https://www.youtube.com/watch?v=IJ9U4Rox8BE"
 +++
